@@ -22,7 +22,12 @@ class RPSmodel(nn.Module):
 @st.cache_resource
 def load_model():
     model = RPSmodel()
-    model.load_state_dict(torch.load("scissors_rock_paper.pth", map_location=torch.device("cpu")))
+    model.load_state_dict(
+        torch.load(
+            "scissors_rock_paper.pth",
+            map_location=torch.device("cpu")
+        )
+    )
     model.eval()
     return model
 
@@ -30,7 +35,12 @@ model = load_model()
 
 transform = transforms.Compose([
     transforms.Resize((64, 64)),
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+    transforms.ColorJitter(
+        brightness=0.2,
+        contrast=0.2,
+        saturation=0.2,
+        hue=0.1
+    ),
     transforms.ToTensor(),
 ])
 
@@ -39,25 +49,62 @@ classes = ["scissors", "rock", "paper"]
 st.title("✊✋✌ Rock Paper Scissors Classifier")
 st.caption("Trained with ColorJitter for better skin tone support")
 
-uploaded_file = st.file_uploader("Choose an image", type=["png", "jpg", "jpeg", "webp"])
+uploaded_file = st.file_uploader(
+    "Choose an image",
+    type=["png", "jpg", "jpeg", "webp"]
+)
 
 if uploaded_file is not None:
+
+    st.write(f"File size: {uploaded_file.size / 1024:.1f} KB")
+
     image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption="Uploaded Image", use_container_width=True)
+
+    st.image(
+        image,
+        caption="Uploaded Image",
+        use_container_width=True
+    )
 
     if st.button("🔮 Predict", type="primary"):
-        with st.spinner("Predicting..."):
-            gc.collect()
-            img_tensor = transform(image).unsqueeze(0)
-            with torch.no_grad():
-                output = model(img_tensor)
-                probs = torch.nn.functional.softmax(output[0], dim=0)
-                pred_idx = torch.argmax(probs).item()
-                confidence = probs[pred_idx].item() * 100
 
-            prediction = classes[pred_idx]
-            emoji = {"rock": "✊", "paper": "✋", "scissors": "✌️"}.get(prediction, "❓")
-            st.success(f"{emoji} **{prediction.upper()}**")
-            st.info(f"Confidence: {confidence:.1f}%")
+        try:
+            with st.spinner("Predicting..."):
 
-st.caption("Built by Carolyne Ndinda | AI & Machine Learning Project")
+                gc.collect()
+
+                img_tensor = transform(image).unsqueeze(0)
+
+                with torch.no_grad():
+                    output = model(img_tensor)
+
+                    probs = torch.nn.functional.softmax(
+                        output[0],
+                        dim=0
+                    )
+
+                    pred_idx = torch.argmax(probs).item()
+                    confidence = probs[pred_idx].item() * 100
+
+                prediction = classes[pred_idx]
+
+                emoji = {
+                    "rock": "✊",
+                    "paper": "✋",
+                    "scissors": "✌️"
+                }.get(prediction, "❓")
+
+                st.success(
+                    f"{emoji} **{prediction.upper()}**"
+                )
+
+                st.info(
+                    f"Confidence: {confidence:.1f}%"
+                )
+
+        except Exception as e:
+            st.error(f"Error: {e}")
+
+st.caption(
+    "Built by Carolyne Ndinda | AI & Machine Learning Project"
+)
