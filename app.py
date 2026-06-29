@@ -37,7 +37,7 @@ transform = transforms.Compose([
 classes = ["scissors", "rock", "paper"]
 
 st.title("✊✋✌ Rock Paper Scissors Classifier")
-st.caption("Built by Carolyne Ndinda")
+st.caption("Trained with ColorJitter for better skin tone support")
 
 uploaded_file = st.file_uploader("Choose an image", type=["png", "jpg", "jpeg", "webp"])
 
@@ -59,3 +59,5 @@ if uploaded_file is not None:
             emoji = {"rock": "✊", "paper": "✋", "scissors": "✌️"}.get(prediction, "❓")
             st.success(f"{emoji} **{prediction.upper()}**")
             st.info(f"Confidence: {confidence:.1f}%")
+
+st.caption("Built by Carolyne Ndinda | AI & Machine Learning Project")
